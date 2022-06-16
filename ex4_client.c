@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
   int to_srv_file = open("to_srv.txt", O_CREAT | O_TRUNC | O_WRONLY, 0644);
   
   // Write the input to txt file
-  write(to_srv_file, "client_pid", strlen("client_pid"));
+  write(to_srv_file, "12345", strlen("12345"));
   write(to_srv_file, "\n", strlen("\n"));
   write(to_srv_file, argv[2], strlen(argv[2]));
   write(to_srv_file, "\n", strlen("\n"));
