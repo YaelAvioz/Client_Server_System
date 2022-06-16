@@ -12,7 +12,7 @@
 #define LEN 100
 
 
-int calculator(int operation, int first, int second)
+int calculator(int first, int operation, int second)
 {
 	int resulte;
 	
@@ -85,8 +85,6 @@ void handler(int signum)
 	// Reads data from the client file to the buffer
 	int read_file = read(file, buffer, LEN);
  
-   printf("in buffer:\n");
-   printf("%s\n\n", buffer);
 
 	// In case there was a failiure
 	if (read_file == -1)
@@ -103,12 +101,40 @@ void handler(int signum)
 	{
 		return ERROR;
 	}
- }
+ 
 		
 	// Parse input from buffer
+   printf("in buffer:\n");
+   printf("%s\n\n", buffer);
+   
+   const char s[3] = "\n";
+   char *token;
+   
+   /* get the first token */
+   token = strtok(buffer, s);
+   
+   int client_pid = atoi(token);
+   token = strtok(NULL, s);
+   int first = atoi(token);
+   token = strtok(NULL, s);
+   int operation = atoi(token);
+   token = strtok(NULL, s);
+   int second = atoi(token);
+      
+   printf("client: %d\n\n", client_pid);
+   printf("first: %d\n\n", first);
+   printf("opration: %d\n\n", operation);
+   printf("second: %d\n\n", second);
+   
+  //calc the resulte
+  printf("START CALC..\n\n");
+	int answere = calculator(first,operation,second);
+ printf("calc..calc..calc...");
+  printf("the answere is: %d" ,answere);
+   
+ }
 	
-	/** calc the resulte
-	int answere = calculator(1,3,4);
+	/** 
 	
 	// Convert answere to string
 	char answere_str[10];
@@ -119,7 +145,7 @@ void handler(int signum)
 	//pid= //check hoe to get this data
     //sprintf(answere_str, 'to_client_%d', pid);
 	
-	// write the resulte to "to_client_xxxxx.txt" file
+ //	write the resulte to "to_client_xxxxx.txt" file
 }*/
 	
 	
