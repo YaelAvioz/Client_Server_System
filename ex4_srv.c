@@ -1,3 +1,12 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <signal.h>
+
+
 #define TRUE 1
 #define ERROR
 #define LEN 100
@@ -45,11 +54,14 @@ int calculator(int operation, int first, int second)
 	return resulte;
 }
 
+
 // Handles the client
-void handler()
+void handler(int signum)
 {
+  printf("work\n");
+  
 	// Create a child process
-	int child_p = fork()
+	int child_p = fork();
 	
 	// In case of failure
 	if(child_p == -1)
@@ -58,7 +70,7 @@ void handler()
 	}
 	
 	// Open the client file with the flag read only
-	int file = open('to_srv.txt', O_RDONLY);
+	int file = open("to_srv.txt", O_RDONLY);
 		
 	// In case there was a failiure
 	if(file < 0)
@@ -71,7 +83,10 @@ void handler()
 	char buffer[LEN];
 		
 	// Reads data from the client file to the buffer
-	int read_file1 = read(file, buffer, LEN);
+	int read_file = read(file, buffer, LEN);
+ 
+   printf("in buffer:\n");
+   printf("%s\n\n", buffer);
 
 	// In case there was a failiure
 	if (read_file == -1)
@@ -81,18 +96,19 @@ void handler()
 		
 	// Removes the client file
 	close(file);
-	ret = remove('to_srv.txt');
+	int ret = remove("to_srv.txt");
 
 	// In case there was a failiure
 	if (ret == -1)
 	{
 		return ERROR;
 	}
+ }
 		
 	// Parse input from buffer
 	
-	// calc the resulte
-	int answere = calculator();
+	/** calc the resulte
+	int answere = calculator(1,3,4);
 	
 	// Convert answere to string
 	char answere_str[10];
@@ -100,17 +116,24 @@ void handler()
 	
 	// Get Client PID
 	char client_pid[10];
-	pid= //check hoe to get this data
-    sprintf(answere_str, 'to_client_%d', pid);
+	//pid= //check hoe to get this data
+    //sprintf(answere_str, 'to_client_%d', pid);
 	
 	// write the resulte to "to_client_xxxxx.txt" file
-}
+}*/
 	
 	
 
 int main (){
-	
-   while(TRUE) {
-        pause();
-    }
+
+  printf("\nstart\n");
+  
+  signal(SIGUSR1,handler);
+  
+  while(TRUE) {
+    printf("\nwaiting...\n");
+    pause();
+  }
+    
+  return 0;
 }
