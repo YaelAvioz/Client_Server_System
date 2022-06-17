@@ -68,6 +68,10 @@ void handler(int signum)
 	{
 		return ERROR;
 	}
+ 
+ if(child_p == 0)
+	{
+ 
 	
 	// Open the client file with the flag read only
 	int file = open("to_srv.txt", O_RDONLY);
@@ -127,26 +131,34 @@ void handler(int signum)
    printf("second: %d\n\n", second);
    
   //calc the resulte
-  printf("START CALC..\n\n");
 	int answere = calculator(first,operation,second);
  printf("calc..calc..calc...");
-  printf("the answere is: %d" ,answere);
-   
- }
-	
-	/** 
-	
-	// Convert answere to string
+  printf("the answere is: %d\n" ,answere);
+  
+  // Convert answere to string
 	char answere_str[10];
-    sprintf(answere_str, '%d', answere);
-	
-	// Get Client PID
-	char client_pid[10];
-	//pid= //check hoe to get this data
-    //sprintf(answere_str, 'to_client_%d', pid);
-	
- //	write the resulte to "to_client_xxxxx.txt" file
-}*/
+    sprintf(answere_str, "%d", answere);
+    
+    // Convert answere to string
+	char client_pid_str[10];
+    sprintf(client_pid_str, "%d", client_pid);
+    
+    // Create the output file name
+    char file_name[LEN];
+    strcpy(file_name, "to_client_");
+    strcat(file_name, client_pid_str);
+    strcat(file_name, ".txt") ;
+
+    
+    printf("file name = %s \n", file_name);
+   
+   // Create the file
+  int to_client_file = open(file_name, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+  
+  //	Write the resulte to "to_client_xxxxx.txt" file
+  write(to_client_file, answere_str, strlen(answere_str));
+ }
+ }
 	
 	
 
