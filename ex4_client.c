@@ -24,8 +24,8 @@ void client_handler(int signum)
     // In case there was a failiure
     if (file < 0)
     {
+        printf("Client closed because no response was received from the server for 30 seconds\n");
         close(file);
-        printf("ERROR_FROM_EX4\n");
         exit(-1);
     }
 
@@ -60,6 +60,7 @@ void client_handler(int signum)
     char *resulte = token;
 
     printf("%s\n", resulte);
+    exit(0);
 }
 
 int main(int argc, char *argv[])
@@ -81,7 +82,25 @@ int main(int argc, char *argv[])
     sprintf(client_pid_str, "%d", client_pid);
 
     // Create the file
-    int to_srv_file = open("to_srv.txt", O_CREAT | O_TRUNC | O_WRONLY, 0644);
+    int to_srv_file;
+    int attempts = 10;
+    while ((to_srv_file = open("to_srv.txt", O_CREAT | O_TRUNC | O_WRONLY, 0644)) == -1)
+    {
+      // The client have only 10 attempts
+      attempts --;
+      
+      // clienr needs to wait random time between 0 to 5 sec
+      int time_to_wait = rand() % 6;
+      alarm(time_to_wait);
+      pause();
+      
+      // Client failed 10 times to open the file
+      if(attempts == 0)
+      {
+        printf("ERROR_FROM_EX4\n");
+        exit(-1);
+      }
+    }
 
     // Write the input to txt file
     write(to_srv_file, client_pid_str, strlen(client_pid_str));
