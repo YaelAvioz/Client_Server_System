@@ -10,8 +10,6 @@
 
 void client_handler(int signum)
 {
-    printf("client_handler\n");
-
     // Create the output file
     char client_pid_str[LEN];
     char file_name[LEN];
@@ -19,7 +17,7 @@ void client_handler(int signum)
     strcpy(file_name, "to_client_");
     strcat(file_name, client_pid_str);
     strcat(file_name, ".txt");
-
+    
     // Open the client file with the flag read only
     int file = open(file_name, O_RDONLY);
 
@@ -54,8 +52,14 @@ void client_handler(int signum)
         printf("ERROR_FROM_EX4\n");
         exit(-1);
     }
+    
+    // Parse input from buffer
+    const char s[3] = "\n";
+    char *token;
+    token = strtok(buffer, s);
+    char *resulte = token;
 
-    printf("%s", buffer);
+    printf("%s\n", resulte);
 }
 
 int main(int argc, char *argv[])
@@ -67,7 +71,7 @@ int main(int argc, char *argv[])
         printf("ERROR_FROM_EX4\n");
         exit(-1);
     }
-
+    
     // Get the server pid
     int srv_pid = atoi(argv[1]);
 
@@ -91,10 +95,11 @@ int main(int argc, char *argv[])
     // Sends signal to server
     // SIGUSR1 - Intended for use by user applications
     kill(srv_pid, SIGUSR1);
+
+    signal(SIGUSR2, client_handler);
     
-    signal(SIGUSR2,client_handler);
-
     alarm(30);
-
+    pause();
+    
     return 0;
 }
