@@ -37,7 +37,6 @@ int calculator(int first, int operation, int second)
         // Cannot divide by zero
         if (second == 0)
         {
-          // TODO: change the error text
           printf("ERROR_FROM_EX4\n");
           exit(-1);
         }
@@ -56,7 +55,7 @@ int calculator(int first, int operation, int second)
 }
 
 // Handles the client
-void handler(int signum)
+void server_handler(int signum)
 {
     printf("work\n");
 
@@ -156,17 +155,19 @@ void handler(int signum)
     }
 }
 
+void alarm_handler(int sig){
+    printf("The server was closed because no service request was received for the last 60 seconds\n");
+    exit(0);
+}
+
 int main()
 {
-
-    printf("\nstart\n");
-
-    signal(SIGUSR1, handler);
+    signal(SIGALRM, alarm_handler);
+    signal(SIGUSR1, server_handler);
 
     alarm(60);
     while (TRUE)
     {
-        printf("\nwaiting...\n");
         pause();
     }
 
