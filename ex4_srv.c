@@ -7,7 +7,6 @@
 #include <signal.h>
 
 #define TRUE 1
-#define ERROR
 #define LEN 100
 
 int calculator(int first, int operation, int second)
@@ -38,7 +37,9 @@ int calculator(int first, int operation, int second)
         // Cannot divide by zero
         if (second == 0)
         {
-            return ERROR;
+          // TODO: change the error text
+          printf("ERROR_FROM_EX4\n");
+          exit(-1);
         }
         resulte = first / second;
     }
@@ -46,7 +47,8 @@ int calculator(int first, int operation, int second)
     // In case the operation is not valid
     else
     {
-        return ERROR;
+      printf("ERROR_FROM_EX4\n");
+      exit(-1);
     }
 
     // Returns the final resulte
@@ -64,7 +66,8 @@ void handler(int signum)
     // In case of failure
     if (child_p == -1)
     {
-        return ERROR;
+      printf("ERROR_FROM_EX4\n");
+      exit(-1);
     }
 
     if (child_p == 0)
@@ -76,8 +79,9 @@ void handler(int signum)
         // In case there was a failiure
         if (file < 0)
         {
-            close(file);
-            return ERROR;
+          close(file);
+          printf("ERROR_FROM_EX4\n");
+          exit(-1);
         }
 
         // Create buffer
@@ -89,7 +93,8 @@ void handler(int signum)
         // In case there was a failiure
         if (read_file == -1)
         {
-            return ERROR;
+          printf("ERROR_FROM_EX4\n");
+          exit(-1);
         }
 
         // Removes the client file
@@ -99,19 +104,15 @@ void handler(int signum)
         // In case there was a failiure
         if (ret == -1)
         {
-            return ERROR;
+          printf("ERROR_FROM_EX4\n");
+          exit(-1);
         }
 
         // Parse input from buffer
-        printf("in buffer:\n");
-        printf("%s\n\n", buffer);
-
+        // Save the data from the buffer to variables
         const char s[3] = "\n";
         char *token;
-
-        /* get the first token */
         token = strtok(buffer, s);
-
         int client_pid = atoi(token);
         token = strtok(NULL, s);
         int first = atoi(token);
@@ -120,21 +121,14 @@ void handler(int signum)
         token = strtok(NULL, s);
         int second = atoi(token);
 
-        printf("client: %d\n\n", client_pid);
-        printf("first: %d\n\n", first);
-        printf("opration: %d\n\n", operation);
-        printf("second: %d\n\n", second);
-
-        // calc the resulte
+        // Calc the resulte
         int answere = calculator(first, operation, second);
-        printf("calc..calc..calc...");
-        printf("the answere is: %d\n", answere);
 
-        // Convert answere to string
+        // Convert the resulte to string
         char answere_str[10];
         sprintf(answere_str, "%d", answere);
 
-        // Convert answere to string
+        // Convert the client pid to string
         char client_pid_str[10];
         sprintf(client_pid_str, "%d", client_pid);
 
@@ -149,8 +143,16 @@ void handler(int signum)
         // Create the file
         int to_client_file = open(file_name, O_CREAT | O_TRUNC | O_WRONLY, 0644);
 
-        //	Write the resulte to "to_client_xxxxx.txt" file
+        // Write the resulte to "to_client_xxxxx.txt" file
         write(to_client_file, answere_str, strlen(answere_str));
+        write(to_client_file, "\n", strlen("\n"));
+        
+        // Close the file
+        close(to_client_file);
+        
+        // Send signal to the client
+        kill(client_pid, SIGUSR2);
+        exit(0);
     }
 }
 
@@ -161,6 +163,7 @@ int main()
 
     signal(SIGUSR1, handler);
 
+    alarm(60);
     while (TRUE)
     {
         printf("\nwaiting...\n");
