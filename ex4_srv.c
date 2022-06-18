@@ -1,3 +1,5 @@
+//Yael Avioz 207237421
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,12 +36,6 @@ int calculator(int first, int operation, int second)
     // Division
     else if (operation == 4)
     {
-        // Cannot divide by zero
-        if (second == 0)
-        {
-          printf("ERROR_FROM_EX4\n");
-          exit(-1);
-        }
         resulte = first / second;
     }
 
@@ -119,16 +115,9 @@ void server_handler(int signum)
         int operation = atoi(token);
         token = strtok(NULL, s);
         int second = atoi(token);
-
-        // Calc the resulte
-        int answere = calculator(first, operation, second);
-
-        // Convert the resulte to string
-        char answere_str[10];
-        sprintf(answere_str, "%d", answere);
-
+        
         // Convert the client pid to string
-        char client_pid_str[10];
+        char client_pid_str[LEN];
         sprintf(client_pid_str, "%d", client_pid);
 
         // Create the output file name
@@ -136,25 +125,51 @@ void server_handler(int signum)
         strcpy(file_name, "to_client_");
         strcat(file_name, client_pid_str);
         strcat(file_name, ".txt");
-
-        printf("file name = %s \n", file_name);
-
-        // Create the file
-        int to_client_file = open(file_name, O_CREAT | O_TRUNC | O_WRONLY, 0644);
-
-        // Write the resulte to "to_client_xxxxx.txt" file
-        write(to_client_file, answere_str, strlen(answere_str));
-        write(to_client_file, "\n", strlen("\n"));
         
-        // Close the file
-        close(to_client_file);
+		// In case user is trying to divide by zero
+        if((operation == 4) && (second == 0))
+        {
+          // Create the file
+          int to_client_file = open(file_name, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+
+          // Write the resulte to "to_client_xxxxx.txt" file
+          write(to_client_file,"CANNOT_DIVIDE_BY_ZERO", strlen("CANNOT_DIVIDE_BY_ZERO"));
+          write(to_client_file, "\n", strlen("\n"));
         
-        // Send signal to the client
-        kill(client_pid, SIGUSR2);
-        exit(0);
+          // Close the file
+          close(to_client_file);
+        
+          // Send signal to the client
+          kill(client_pid, SIGUSR2);
+          exit(0);
+        }
+        else{
+          // Calc the resulte
+          int answere = calculator(first, operation, second);
+
+          // Convert the resulte to string
+          char answere_str[LEN];
+          sprintf(answere_str, "%d", answere);
+
+          // Create the file
+          int to_client_file = open(file_name, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+
+          // Write the resulte to "to_client_xxxxx.txt" file
+          write(to_client_file, answere_str, strlen(answere_str));
+          write(to_client_file, "\n", strlen("\n"));
+        
+          // Close the file
+          close(to_client_file);
+        
+          // Send signal to the client
+          kill(client_pid, SIGUSR2);
+          exit(0);
+        }
     }
 }
 
+
+// TIMEOUT
 void alarm_handler(int sig){
     printf("The server was closed because no service request was received for the last 60 seconds\n");
     exit(0);
